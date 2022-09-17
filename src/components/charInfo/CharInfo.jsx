@@ -1,4 +1,6 @@
 import {Component} from "react"
+import PropTypes from 'prop-types'
+
 import Spinner from "../spinner/Spinner";
 import Skeleton from "../skeleton/Skeleton";
 import './charInfo.scss'
@@ -52,7 +54,6 @@ class CharInfo extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        console.log('update')
         if(prevProps.charId !== this.props.charId) this.updateChar()
     }
 
@@ -117,6 +118,10 @@ const View = ({char}) => {
         </>
 
     )
+}
+
+CharInfo.propTypes = {
+    charId: PropTypes.number
 }
 
 export default CharInfo;
