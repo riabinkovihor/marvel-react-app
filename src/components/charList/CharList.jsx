@@ -4,33 +4,76 @@ import MarvelService from "../../services/MarvelService";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
 
-// import abyss from '../../resources/img/abyss.jpg';
-
-
-
 class CharList extends Component {
     state = {
-        chars:null,
-        loading: true
+        charList: [],
+        loading: true,
+        error: false,
+        newItemsLoading: false,
+        offset: 210,
+        charEnded: false
     }
 
     marveService = MarvelService
 
-    updateAll = () => {
-        this.setState({
-            loading:true
-        })
-        this.marveService
-            .getAllCharacters()
-            .then(this.onCharLoaded)
-            .catch(this.onError)
+    createObserver = () => {
+        let options = {
+            rootMargin: '0px',
+            threshold: 1.0
+        }
+
+        const target = document.querySelector('.infinite-loading');
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            const {loading,newItemsLoading,offset,charEnded} = this.state
+
+            if (charEnded) {
+                observer.unobserve(target)
+                return
+            }
+            if (entries[0].isIntersecting && !loading && !newItemsLoading) {
+                this.onRequest(offset)
+            }
+        }, options);
+
+        observer.observe(target);
     }
 
-    onCharLoaded = (chars) => {
+    componentDidMount() {
+        this.onRequest()
+        this.createObserver()
+    }
+
+    componentWillUnmount() {
+
+    }
+
+    onRequest = (offset) => {
+        if (!this.newItemsLoading) {
+            this.onCharListLoading()
+            this.marveService
+                .getAllCharacters(offset)
+                .then(this.onCharListLoaded)
+                .catch(this.onError)
+        }
+    }
+
+    onCharListLoading = () => {
         this.setState({
-            chars,
-            loading:false
+            newItemsLoading: true
         })
+    }
+
+    onCharListLoaded = (newCharList) => {
+        let ended = newCharList < 9
+
+        this.setState(({charList,offset}) => ({
+            charList: [...charList,...newCharList],
+            loading:false,
+            newItemsLoading: false,
+            offset: offset + 9,
+            charEnded: ended
+        }))
     }
 
     onError = () => {
@@ -40,12 +83,7 @@ class CharList extends Component {
         })
     }
 
-    componentDidMount() {
-        this.updateAll()
-    }
-
-
-    renderItems(chars) {
+    renderItems(charList) {
         const charClass = (selected,thumbnail) => {
             let result = 'char__item'
             if (selected) result += ' char__item_selected'
@@ -53,8 +91,7 @@ class CharList extends Component {
             return result
         }
 
-
-        const items =  chars && chars.map(({id,name,thumbnail,selected = false}) => {
+        const items =  charList && charList.map(({id,name,thumbnail,selected = false}) => {
             return (
                 <li key={id}
                     onClick={()=>this.props.onCharSelect(id)}
@@ -73,9 +110,9 @@ class CharList extends Component {
     }
 
     render () {
-        const {chars,error,loading} = this.state
+        const {charList,error,loading,newItemsLoading,offset,charEnded} = this.state
 
-        const items = this.renderItems(chars)
+        const items = this.renderItems(charList)
 
         const errorMessage = error ? <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
@@ -86,9 +123,15 @@ class CharList extends Component {
                 {errorMessage}
                 {spinner}
                 {content}
-                <button className="button button__main button__long">
+                <button
+                    className="button button__main button__long"
+                    style={charEnded ? {display:'none'} : null}
+                    disabled={newItemsLoading}
+                    onClick={() => this.onRequest(offset)}
+                >
                     <div className="inner">load more</div>
                 </button>
+                <div className="infinite-loading"></div>
             </div>
         )
     }
