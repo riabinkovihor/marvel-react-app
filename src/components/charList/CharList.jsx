@@ -16,13 +16,6 @@ class CharList extends Component {
 
     marveService = MarvelService
 
-
-    // updateAll = () => {
-    //     this.marveService
-    //         .getAllCharacters()
-    //         .then(res=>console.log(res))
-    // }
-
     updateAll = () => {
         this.setState({
             loading:true
@@ -53,23 +46,20 @@ class CharList extends Component {
 
 
     renderItems(chars) {
-        const charClass = (selected) => {
+        const charClass = (selected,thumbnail) => {
             let result = 'char__item'
             if (selected) result += ' char__item_selected'
+            if (thumbnail.includes('not_available')) result += ' not-available'
             return result
-        }
-
-        const imageClass = (thumbnail) => {
-            return thumbnail.includes('not_available') && 'not-available'
         }
 
 
         const items =  chars && chars.map(({id,name,thumbnail,selected = false}) => {
             return (
                 <li key={id}
-                    className={charClass(selected)}>
-                    <img className={imageClass(thumbnail)}
-                         src={thumbnail} alt={name}/>
+                    onClick={()=>this.props.onCharSelect(id)}
+                    className={charClass(selected,thumbnail)}>
+                    <img src={thumbnail} alt={name}/>
                     <div className="char__name">{name}</div>
                 </li>
             )

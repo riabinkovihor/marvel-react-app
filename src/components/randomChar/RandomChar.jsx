@@ -27,6 +27,12 @@ class RandomChar extends Component {
         })
     }
 
+    onCharLoading = () => {
+        this.setState({
+            loading:true
+        })
+    }
+
     onReloadChar = () => {
         this.updateCharacter()
     }
@@ -39,9 +45,7 @@ class RandomChar extends Component {
     }
 
     updateCharacter = () => {
-        this.setState({
-            loading:true
-        })
+        this.onCharLoading()
         const id = Math.floor(Math.random() * 400 + 1011000)
         this.marveService
             .getCharacter(id)
@@ -54,7 +58,6 @@ class RandomChar extends Component {
     }
 
     render(){
-        console.log('render')
         const  {char,loading, error} = this.state
 
         const errorMessage = error ? <ErrorMessage/> :null

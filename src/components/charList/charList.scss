@@ -22,15 +22,20 @@
         padding: 15px;
         cursor: pointer;
         transition: 0.3s transform;
+
+        &.not-available {
+            overflow: hidden;
+            img {
+              width: unset;
+            }
+        }
         img {
             width: 200px;
             height: 200px;
             object-fit: cover;
             transform: translate(-15px, -15px);
 
-            &.not-available {
-                object-fit: contain;
-            }
+
         }
         &_selected {
             box-shadow: 0 5px 20px $main-color;
