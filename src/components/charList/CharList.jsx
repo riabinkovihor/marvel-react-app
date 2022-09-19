@@ -43,11 +43,7 @@ class CharList extends Component {
 
     componentDidMount() {
         this.onRequest()
-        this.createObserver()
-    }
-
-    componentWillUnmount() {
-
+        // this.createObserver()
     }
 
     onRequest = (offset) => {
@@ -85,19 +81,38 @@ class CharList extends Component {
         })
     }
 
+    onHandleKeyDown = (e,id) =>{
+
+        if (
+            e.code === "Enter" ||
+            e.code === "Space"
+        ) {
+            e.preventDefault()
+            e.target.focus()
+            this.props.onCharSelect(id)
+        }
+    }
+
+    onHandleClick = (e,id) => {
+        e.target.focus()
+        this.props.onCharSelect(id)
+    }
+
     renderItems(charList) {
-        const charClass = (selected,thumbnail) => {
+        const charClass = (id,thumbnail) => {
             let result = 'char__item'
-            if (selected) result += ' char__item_selected'
+            if (this.props.selectedChar === id) result += ' char__item_selected'
             if (thumbnail.includes('not_available')) result += ' not-available'
             return result
         }
 
-        const items =  charList && charList.map(({id,name,thumbnail,selected = false}) => {
+        const items =  charList && charList.map(({id,name,thumbnail}) => {
             return (
                 <li key={id}
-                    onClick={()=>this.props.onCharSelect(id)}
-                    className={charClass(selected,thumbnail)}>
+                    tabIndex="0"
+                    onClick = {(e)=>this.onHandleClick(e,id)}
+                    onKeyDown = {(e)=>this.onHandleKeyDown(e,id)}
+                    className={charClass(id,thumbnail)}>
                     <img src={thumbnail} alt={name}/>
                     <div className="char__name">{name}</div>
                 </li>

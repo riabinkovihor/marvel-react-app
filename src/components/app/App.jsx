@@ -31,6 +31,7 @@ class App extends Component {
             selectedChar:id
         })
     }
+
     render () {
         return (
             <div className="app">
@@ -42,7 +43,7 @@ class App extends Component {
                 <main>
                     <RandomChar/>
                     <div className="char__content">
-                        <CharList onCharSelect={this.onCharSelect}/>
+                        <CharList selectedChar={this.state.selectedChar} onCharSelect={this.onCharSelect}/>
                         <ErrorBoundary>
                             <CharInfo charId={this.state.selectedChar}/>
                         </ErrorBoundary>
