@@ -1,10 +1,14 @@
 import {Component} from "react";
+import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 
 import './charList.scss';
 import MarvelService from "../../services/MarvelService";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
+
+
+
 
 class CharList extends Component {
     state = {
@@ -13,7 +17,8 @@ class CharList extends Component {
         error: false,
         newItemsLoading: false,
         offset: 210,
-        charEnded: false
+        charEnded: false,
+        showModal: false
     }
 
     marveService = MarvelService
@@ -88,14 +93,16 @@ class CharList extends Component {
             e.code === "Space"
         ) {
             e.preventDefault()
-            e.target.focus()
-            this.props.onCharSelect(id)
+           this.onHandleClick(id)
         }
     }
 
     onHandleClick = (e,id) => {
         e.target.focus()
         this.props.onCharSelect(id)
+        this.setState({
+            showModal:true
+        })
     }
 
     renderItems(charList) {
@@ -127,7 +134,7 @@ class CharList extends Component {
     }
 
     render () {
-        const {charList,error,loading,newItemsLoading,offset,charEnded} = this.state
+        const {charList,error,loading,newItemsLoading,offset,charEnded,showModal} = this.state
 
         const items = this.renderItems(charList)
 
@@ -149,9 +156,23 @@ class CharList extends Component {
                     <div className="inner">load more</div>
                 </button>
                 <div className="infinite-loading"></div>
+                { showModal
+                    ?   <Portal>
+                            <div onClick={()=>{this.setState({showModal:false})}}
+                                className="portal">
+                                <h2>Char selected</h2>
+                            </div>
+                        </Portal>
+                    : null
+                }
+
             </div>
         )
     }
+}
+
+const Portal = (props) => {
+    return ReactDOM.createPortal(props.children, document.body)
 }
 
 CharList.propTypes = {
