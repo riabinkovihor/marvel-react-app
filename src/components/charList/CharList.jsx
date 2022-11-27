@@ -1,4 +1,4 @@
-import {Component} from "react";
+import {useEffect, useRef, useState} from "react";
 import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 
@@ -8,107 +8,122 @@ import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
 
 
+const InfiniteLoading = ({onIntersect,isDisabled}) => {
+    const [entries,setEntries] = useState(null)
 
+    const elementRef = useRef(null)
 
-class CharList extends Component {
-    state = {
-        charList: [],
-        loading: true,
-        error: false,
-        newItemsLoading: false,
-        offset: 210,
-        charEnded: false,
-        showModal: false
-    }
+    const observer = useRef(null)
 
-    marveService = MarvelService
-
-    createObserver = () => {
+    const createObserver = () => {
         let options = {
             rootMargin: '0px',
             threshold: 1.0
         }
 
-        const target = document.querySelector('.infinite-loading');
+        observer.current = new IntersectionObserver((entries) => {
+            setEntries(entries)
+        }, options)
 
-        const observer = new IntersectionObserver((entries, observer) => {
-            const {loading,newItemsLoading,offset,charEnded} = this.state
-
-            if (charEnded) {
-                observer.unobserve(target)
-                return
-            }
-            if (entries[0].isIntersecting && !loading && !newItemsLoading) {
-                this.onRequest(offset)
-            }
-        }, options);
-
-        observer.observe(target);
+        observer.current.observe(elementRef.current);
     }
 
-    componentDidMount() {
-        this.onRequest()
-        // this.createObserver()
+    const destroyObserver = () =>{
+        observer.current.unobserve(elementRef.current)
     }
 
-    onRequest = (offset) => {
-        if (!this.newItemsLoading) {
-            this.onCharListLoading()
-            this.marveService
+    useEffect(()=>{
+        createObserver()
+        return destroyObserver
+    },[])
+
+
+    useEffect(()=>{
+        if (isDisabled) {
+            observer.current.unobserve(elementRef.current)
+            return
+        }
+
+        if (entries?.[0].isIntersecting) {
+            onIntersect()
+        }
+    },[entries,isDisabled])
+
+    return (
+        <div ref={elementRef} className="infinite-loading"></div>
+    )
+}
+
+const CharList = (props) => {
+    const [charList,setCharList] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(false)
+    const [newItemsLoading, setNewItemsLoading] = useState(false)
+    const [offset, setOffset] = useState(210)
+    const [charEnded, setCharEnded] = useState(false)
+    const [showModal,setShowModal] = useState(false)
+
+    const marveService = MarvelService
+
+
+    useEffect(()=>{
+        onRequest()
+    },[])
+
+
+    const onRequest = (offset) => {
+        if (!newItemsLoading) {
+            onCharListLoading()
+            marveService
                 .getAllCharacters(offset)
-                .then(this.onCharListLoaded)
-                .catch(this.onError)
+                .then(onCharListLoaded)
+                .catch(onError)
         }
     }
 
-    onCharListLoading = () => {
-        this.setState({
-            newItemsLoading: true
-        })
+    const onIntersect = () =>{
+        onRequest(offset)
     }
 
-    onCharListLoaded = (newCharList) => {
-        let ended = newCharList < 9
-
-        this.setState(({charList,offset}) => ({
-            charList: [...charList,...newCharList],
-            loading:false,
-            newItemsLoading: false,
-            offset: offset + 9,
-            charEnded: ended
-        }))
+    const onCharListLoading = () => {
+        setNewItemsLoading(true)
     }
 
-    onError = () => {
-        this.setState({
-            loading:false,
-            error: true
-        })
+    const onCharListLoaded = (newCharList) => {
+        let ended = newCharList.length < 9
+        setCharList(charList=> [...charList,...newCharList])
+        setLoading(false)
+        setNewItemsLoading(false)
+        setOffset(offset => offset + 9)
+        setCharEnded(ended)
     }
 
-    onHandleKeyDown = (e,id) =>{
+    const onError = () => {
+        setLoading(false)
+        setError(true)
+    }
+
+    const onHandleKeyDown = (e,id) =>{
 
         if (
             e.code === "Enter" ||
             e.code === "Space"
         ) {
             e.preventDefault()
-           this.onHandleClick(id)
+           onHandleClick(id)
         }
     }
 
-    onHandleClick = (e,id) => {
+    const onHandleClick = (e,id) => {
         e.target.focus()
-        this.props.onCharSelect(id)
-        this.setState({
-            showModal:true
-        })
+        props.onCharSelect(id)
+        setShowModal(true)
     }
 
-    renderItems(charList) {
+    const renderItems = (charList) => {
         const charClass = (id,thumbnail) => {
             let result = 'char__item'
-            if (this.props.selectedChar === id) result += ' char__item_selected'
+            if (props.selectedChar === id) result += ' char__item_selected'
             if (thumbnail.includes('not_available')) result += ' not-available'
             return result
         }
@@ -117,8 +132,8 @@ class CharList extends Component {
             return (
                 <li key={id}
                     tabIndex="0"
-                    onClick = {(e)=>this.onHandleClick(e,id)}
-                    onKeyDown = {(e)=>this.onHandleKeyDown(e,id)}
+                    onClick = {(e)=>onHandleClick(e,id)}
+                    onKeyDown = {(e)=>onHandleKeyDown(e,id)}
                     className={charClass(id,thumbnail)}>
                     <img src={thumbnail} alt={name}/>
                     <div className="char__name">{name}</div>
@@ -133,42 +148,36 @@ class CharList extends Component {
         )
     }
 
-    render () {
-        const {charList,error,loading,newItemsLoading,offset,charEnded,showModal} = this.state
+    const items = renderItems(charList)
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading ? <Spinner/> : null;
+    const content = !(loading || error) ? items : null;
 
-        const items = this.renderItems(charList)
-
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error) ? items : null;
-
-        return (
-            <div className="char__list">
-                {errorMessage}
-                {spinner}
-                {content}
-                <button
-                    className="button button__main button__long"
-                    style={charEnded ? {display:'none'} : null}
-                    disabled={newItemsLoading}
-                    onClick={() => this.onRequest(offset)}
-                >
-                    <div className="inner">load more</div>
-                </button>
-                <div className="infinite-loading"></div>
-                { showModal
-                    ?   <Portal>
-                            <div onClick={()=>{this.setState({showModal:false})}}
-                                className="portal">
-                                <h2>Char selected</h2>
-                            </div>
-                        </Portal>
-                    : null
-                }
-
-            </div>
-        )
-    }
+    return (
+        <div className="char__list">
+            {errorMessage}
+            {spinner}
+            {content}
+            <button
+                className="button button__main button__long"
+                style={charEnded ? {display:'none'} : null}
+                disabled={newItemsLoading}
+                onClick={() => onRequest(offset)}
+            >
+                <div className="inner">load more</div>
+            </button>
+            <InfiniteLoading onIntersect={onIntersect} isDisabled={charEnded}></InfiniteLoading>
+            { showModal
+                ?   <Portal>
+                        <div onClick={()=>{setShowModal(false)}}
+                            className="portal">
+                            <h2>Char selected</h2>
+                        </div>
+                    </Portal>
+                : null
+            }
+        </div>
+    )
 }
 
 const Portal = (props) => {
