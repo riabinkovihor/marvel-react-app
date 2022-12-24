@@ -1,4 +1,4 @@
-import {Component, useEffect, useState} from "react"
+import {useEffect, useState} from "react"
 import PropTypes from 'prop-types'
 
 import Spinner from "../spinner/Spinner";
@@ -11,12 +11,6 @@ const CharInfo = (props) => {
     const [char,setChar] = useState(null)
     const [error,setError] = useState(null)
     const [loading, setLoading] = useState(false)
-
-    // state = {
-        // char: null,
-        // error: null,
-        // loading: false
-    // }
 
     const marvelServices = MarvelService
 
@@ -31,26 +25,15 @@ const CharInfo = (props) => {
     }
 
     const onCharLoaded = (char) => {
-        // this.setState({
-        //     char,
-        //     loading:false
-        // })
         setChar(char)
         setLoading(false)
     }
 
     const onCharLoading = () => {
-        // this.setState({
-        //     loading:true
-        // })
         setLoading(true)
     }
 
     const onError = () => {
-        // this.setState({
-        //     loading:false,
-        //     error: true
-        // })
         setLoading(false)
         setError(true)
     }
@@ -61,7 +44,7 @@ const CharInfo = (props) => {
 
     useEffect(()=>{
         updateChar()
-    },[props])
+    },[props.charId])
 
     const skeleton = char || loading || error ? null : <Skeleton/>
     const errorMessage = error ? <ErrorMessage/> :null

@@ -21,15 +21,7 @@ const RandomChar = () => {
         setLoading(true)
     }
 
-    const onReloadChar = () => {
-        updateCharacter()
-    }
-
     const onError = () => {
-        this.setState({
-            loading:false,
-            error: true
-        })
         setLoading(false)
         setError(true)
     }
@@ -45,6 +37,11 @@ const RandomChar = () => {
 
     useEffect(()=>{
         updateCharacter()
+        const timerId = setInterval(updateCharacter, 60000);
+
+        return () => {
+            clearInterval(timerId)
+        }
     },[])
 
     const errorMessage = error ? <ErrorMessage/> :null
@@ -65,7 +62,7 @@ const RandomChar = () => {
                 <p className="randomchar__title">
                     Or choose another one
                 </p>
-                <button onClick={onReloadChar} type="button" className="button button__main">
+                <button onClick={updateCharacter} type="button" className="button button__main">
                     <div className="inner">try it</div>
                 </button>
                 <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
@@ -78,7 +75,7 @@ const View = ({char}) => {
     const  {name,description,thumbnail,homepage,wiki} = char
 
     let thumbnailClass = 'randomchar__img'
-    if (thumbnail.includes('not_available')) thumbnailClass += ' not-available'
+    if (thumbnail?.includes('not_available')) thumbnailClass += ' not-available'
 
     return (
         <div className="randomchar__block">
