@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types';
 
 import './charList.scss';
-import MarvelService from "../../services/MarvelService";
+import useMarvelService from "../../services/MarvelService";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
 
@@ -56,14 +56,12 @@ const InfiniteLoading = ({onIntersect,isDisabled}) => {
 
 const CharList = (props) => {
     const [charList,setCharList] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(false)
     const [newItemsLoading, setNewItemsLoading] = useState(false)
     const [offset, setOffset] = useState(210)
     const [charEnded, setCharEnded] = useState(false)
     const [showModal,setShowModal] = useState(false)
 
-    const marveService = MarvelService
+    const {loading, error, getAllCharacters} = useMarvelService()
 
 
     useEffect(()=>{
@@ -74,10 +72,8 @@ const CharList = (props) => {
     const onRequest = (offset) => {
         if (!newItemsLoading) {
             onCharListLoading()
-            marveService
-                .getAllCharacters(offset)
+            getAllCharacters(offset)
                 .then(onCharListLoaded)
-                .catch(onError)
         }
     }
 
@@ -92,15 +88,9 @@ const CharList = (props) => {
     const onCharListLoaded = (newCharList) => {
         let ended = newCharList.length < 9
         setCharList(charList=> [...charList,...newCharList])
-        setLoading(false)
         setNewItemsLoading(false)
         setOffset(offset => offset + 9)
         setCharEnded(ended)
-    }
-
-    const onError = () => {
-        setLoading(false)
-        setError(true)
     }
 
     const onHandleKeyDown = (e,id) =>{
@@ -150,8 +140,8 @@ const CharList = (props) => {
 
     const items = renderItems(charList)
     const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading ? <Spinner/> : null;
-    const content = !(loading || error) ? items : null;
+    const spinner = loading && charList.length === 0 ? <Spinner/> : null;
+    const content = !error && charList.length > 0 ? items : null;
 
     return (
         <div className="char__list">

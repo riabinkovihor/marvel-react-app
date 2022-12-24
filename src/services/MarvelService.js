@@ -1,37 +1,33 @@
-class MarvelService {
-    _apiBase = 'https://gateway.marvel.com:443/v1/public/'
-    _apiKey = 'apikey=80f011b25c1428d39d22690f30880db4'
+import useHttp from "../hooks/useHttp.hook";
+
+const useMarvelService = () => {
+
+    const {request, loading, error} = useHttp()
+
+    const _apiBase = 'https://gateway.marvel.com:443/v1/public/'
+    const _apiKey = 'apikey=80f011b25c1428d39d22690f30880db4'
     // _apiKey = 'apikey=f55ef85c523bfdec0ca090c582466126'
-    _baseOffset = 210
+    const _baseOffset = 210
 
-    getResource = async(url) => {
-        let response = await fetch(url)
-
-        if (!response.ok) throw new Error(`Could not fetch ${url} , status: ${response.status}`)
-
-        return await response.json()
+    const getAllCharacters = async (offset = _baseOffset) => {
+        try {
+            let res = await request(`${_apiBase}characters?limit=9&offset=${offset}&${_apiKey}`)
+            return res.data.results.map(_transformCharacter)
+        } catch (e) {
+            console.log('Error on getAllCharacters --> ', e)
+        }
     }
 
-    // getResource(url) {
-    //     return fetch(url)
-    //         .then(res => {
-    //             if (!res.ok) throw new Error(`Could not fetch ${url} , status: ${res.status}`)
-    //             return res.json()
-    //         })
-    // }
-
-    getAllCharacters = async (offset = this._baseOffset) => {
-        let res = await this.getResource(`${this._apiBase}characters?limit=9&offset=${offset}&${this._apiKey}`)
-        return res.data.results.map(this._transformCharacter)
+    const getCharacter = async (id) => {
+        try {
+            const res = await request(`${_apiBase}characters/${id}?${_apiKey}`)
+            return _transformCharacter(res.data.results[0])
+        } catch (e) {
+            console.log('Error on getCharacter --> ', e)
+        }
     }
 
-    getCharacter = async (id) => {
-        const res = await this.getResource(`${this._apiBase}characters/${id}?${this._apiKey}`)
-        // const res = await Promise.resolve('error')
-        return this._transformCharacter(res.data.results[0])
-    }
-
-    _transformCharacter = ({id,name, description, thumbnail:{path,extension}, urls, comics}) => {
+    const _transformCharacter = ({id,name, description, thumbnail:{path,extension}, urls, comics}) => {
         return {
             id,
             name,
@@ -42,9 +38,11 @@ class MarvelService {
             comics: comics.items
         }
     }
+
+    return {loading,error, getAllCharacters,getCharacter}
 }
 
-export default new MarvelService()
+export default useMarvelService
 
 
 
