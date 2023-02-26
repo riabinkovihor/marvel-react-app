@@ -61,4 +61,8 @@
     justify-content: center;
     font-size: 24px;
     color: #fff;
+    .portal__title {
+        left: 50%;
+        transform: translateX(-50%);
+    }
 }

@@ -162,7 +162,7 @@ const CharList = (props) => {
                 ?   <Portal>
                         <div onClick={()=>{setShowModal(false)}}
                             className="portal">
-                            <h2>Char selected</h2>
+                            <h2 className="portal__title">Char selected</h2>
                         </div>
                     </Portal>
                 : null

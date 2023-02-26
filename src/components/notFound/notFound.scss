@@ -1,3 +1,5 @@
+@import '../../style/variables';
+
 .page-404 {
   text-align: center;
   &__title {
@@ -9,12 +11,14 @@
   &__button {
     width: fit-content;
     padding: 8px 16px;
-    background: gray;
+    background: $grey;
+    color: white;
     transition: all 0.3s ease 0s;
     @media (any-hover: hover) {
         &:hover {
             background: #9f0013;
-            color: white;
+          color: white;
+
         }
     }
   }
