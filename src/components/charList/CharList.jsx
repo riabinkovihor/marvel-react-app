@@ -29,7 +29,8 @@ const InfiniteLoading = ({onIntersect,isDisabled}) => {
     }
 
     const destroyObserver = () =>{
-        observer.current.unobserve(elementRef.current)
+        observer.current.disconnect()
+        observer.current = null
     }
 
     useEffect(()=>{

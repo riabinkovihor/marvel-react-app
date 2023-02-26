@@ -1,0 +1,21 @@
+.page-404 {
+  text-align: center;
+  &__title {
+    margin: 0 0 16px 0;
+  }
+  &__subtitle {
+    margin: 0 0 24px 0;
+  }
+  &__button {
+    width: fit-content;
+    padding: 8px 16px;
+    background: gray;
+    transition: all 0.3s ease 0s;
+    @media (any-hover: hover) {
+        &:hover {
+            background: #9f0013;
+            color: white;
+        }
+    }
+  }
+}
