@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react"
+import {useEffect, useState, memo, useContext} from "react"
 import PropTypes from 'prop-types'
 
 import Spinner from "../spinner/Spinner";
@@ -6,6 +6,8 @@ import Skeleton from "../skeleton/Skeleton";
 import './charInfo.scss'
 import useMarvelService from "../../services/MarvelService";
 import ErrorMessage from "../errorMessage/ErrorMessage";
+import {MyContext} from "../app/App.jsx"
+
 
 const CharInfo = (props) => {
     const [char,setChar] = useState(null)
@@ -36,8 +38,10 @@ const CharInfo = (props) => {
     const spinner = loading ? <Spinner/> :null
     const content = !(error || loading) && char ? <View char={char}/> :null
 
+    const context = useContext(MyContext)
     return (
         <div className="char__info">
+            <p>{'Context counter: ' + context.counter}</p>
             {skeleton}
             {content}
             {errorMessage}
@@ -46,7 +50,11 @@ const CharInfo = (props) => {
     )
 }
 
-const View = ({char}) => {
+const areEqual = (prevProps, nextProps) => {
+    return prevProps.char.id === nextProps.char.id
+}
+
+const View = memo(({char}) => {
     const {name,description,thumbnail,homepage,wiki,comics} = char
 
     const imgStyle = (thumbnail) => {
@@ -86,7 +94,7 @@ const View = ({char}) => {
         </>
 
     )
-}
+},areEqual)
 
 CharInfo.propTypes = {
     charId: PropTypes.number
