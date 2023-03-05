@@ -6,7 +6,7 @@ import './charList.scss';
 import useMarvelService from "../../services/MarvelService";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
-
+import {CSSTransition, TransitionGroup} from 'react-transition-group'
 
 const InfiniteLoading = ({onIntersect,isDisabled}) => {
     const [entries,setEntries] = useState(null)
@@ -121,21 +121,28 @@ const CharList = (props) => {
 
         const items =  charList && charList.map(({id,name,thumbnail}) => {
             return (
-                <li key={id}
-                    tabIndex="0"
-                    onClick = {(e)=>onHandleClick(e,id)}
-                    onKeyDown = {(e)=>onHandleKeyDown(e,id)}
-                    className={charClass(id,thumbnail)}>
-                    <img src={thumbnail} alt={name}/>
-                    <div className="char__name">{name}</div>
-                </li>
+                <CSSTransition
+                    key={id}
+                    timeout={800}
+                    classNames="item"
+                >
+                    <div
+                        tabIndex="0"
+                        onClick = {(e)=>onHandleClick(e,id)}
+                        onKeyDown = {(e)=>onHandleKeyDown(e,id)}
+                        className={charClass(id,thumbnail)}>
+                        <img src={thumbnail} alt={name}/>
+                        <div className="char__name">{name}</div>
+                    </div>
+                </CSSTransition>
+
             )
         })
 
         return (
-            <ul className="char__grid">
+            <TransitionGroup className="char__grid">
                 {items}
-            </ul>
+            </TransitionGroup>
         )
     }
 
