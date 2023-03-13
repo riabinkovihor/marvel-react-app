@@ -4,7 +4,7 @@ import CharList from "../charList/CharList";
 import CharInfo from "../charInfo/CharInfo";
 import ErrorBoundary from "../errorBoundary/ErrorBoundary";
 import decoration from "../../resources/img/vision.png";
-import SearchForm from "../searchForm";
+import SearchForm from "../searchForm/SearchForm";
 
 const MainPage = () => {
     const [selectedChar,setSelectedChar] = useState(null)

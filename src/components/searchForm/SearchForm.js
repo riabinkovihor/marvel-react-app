@@ -1,8 +1,9 @@
 import './searchForm.scss';
 import {Link} from "react-router-dom";
 import useMarvelService from "../../services/MarvelService";
-import {useState} from "react";
+import { useState } from "react";
 import {Formik,Form, Field, ErrorMessage} from "formik";
+import MyErrorMessage from "../errorMessage/ErrorMessage";
 
 const validate = values => {
     const errors = {}
@@ -28,20 +29,17 @@ const validate = values => {
 
 const SearchForm = () => {
     const [ char,setChar ] = useState(null)
-    const [ notFound,setNotFound ] = useState(false)
-    const [ loading,setLoading ] = useState(false)
-    const { searchCharacter } = useMarvelService()
+    const [ init,setInit ] = useState(false)
+    const { error, loading, searchCharacter } = useMarvelService()
+
+    const defaultError = 'The character was not found. Check the name and try again'
 
     const searchChar = async ({search}) => {
-        setLoading(true)
-        setNotFound(false)
+        setInit(true)
         setChar(null)
 
         const result = await searchCharacter(search)
         if (result) setChar(result)
-        else setNotFound(true)
-
-        setLoading(false)
     }
 
     return (
@@ -59,7 +57,7 @@ const SearchForm = () => {
                         <Field id="search" placeholder="Enter name" className="search-form__input" name="search" type="text"/>
                         <button
                             type="submit"
-                            className={loading ? 'button button__main button__loading' : 'button button__main'}>
+                            className={init && loading ? 'button button__main button__loading' : 'button button__main'}>
                             <div className="inner">
                                 FIND
                             </div>
@@ -69,7 +67,8 @@ const SearchForm = () => {
                     <ErrorMessage className="search-form__row search-form__error" name="search" component="div"/>
 
                     {
-                        char ?
+                        init && !loading && char
+                            ?
                             <div className="search-form__row">
                                 <div className="search-form__success">{`There is! Visit ${char.name} page?`}</div>
                                 <Link to={`char/${char.id}`} className="button button__secondary">
@@ -80,9 +79,21 @@ const SearchForm = () => {
                     }
 
                     {
-                        notFound ?
-                            <div className="search-form__row search-form__error">
-                                The character was not found. Check the name and try again
+                        init && !loading && !char
+                            ?
+                            <div className="search-form__row ">
+                                {
+                                    error
+                                        ?
+                                        <div className="search-form__error">
+                                            <MyErrorMessage/>
+                                            { error }
+                                        </div>
+                                        :
+                                        <div className="search-form__error">
+                                            { defaultError }
+                                        </div>
+                                }
                             </div> : null
                     }
                 </div>

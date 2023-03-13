@@ -1,50 +1,8 @@
 import './singleComic.scss';
-import {useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
-import useMarvelService from "../../services/MarvelService";
-import Skeleton from "../skeleton/Skeleton";
-import ErrorMessage from "../errorMessage/ErrorMessage";
-import Spinner from "../spinner/Spinner";
 import {Link} from "react-router-dom";
 
-const SingleComic = () => {
-    const {comicId} = useParams()
-    const [comic,setComic] = useState(null)
-
-    const {loading,error, getComic} = useMarvelService()
-    const updateComic = () => {
-        getComic(comicId)
-            .then(onComicLoaded)
-    }
-
-    const onComicLoaded = (comic) => {
-        setComic(comic)
-    }
-
-    useEffect(()=>{
-        updateComic()
-    },[])
-
-    useEffect(()=>{
-        updateComic()
-    },[comicId])
-
-    const skeleton = comic || loading || error ? null : <Skeleton/>
-    const errorMessage = error ? <ErrorMessage/> :null
-    const spinner = loading ? <Spinner/> :null
-    const content = !(error || loading) && comic ? <View comic={comic}/> :null
-    return (
-        <>
-            {skeleton}
-            {content}
-            {errorMessage}
-            {spinner}
-        </>
-    )
-}
-
-const View = ({comic}) => {
-    const {title,description,pageCount,thumbnail,language,price} = comic
+const SingleComic = ({data}) => {
+    const {title,description,pageCount,thumbnail,language,price} = data
 
     return (
         <div className="single-comic container">
