@@ -26,6 +26,15 @@ const useMarvelService = () => {
             console.log('Error on getCharacter --> ', e)
         }
     }
+    const searchCharacter = async (query) => {
+        try {
+            const res = await request(`${_apiBase}characters?nameStartsWith=${query}&${_apiKey}`)
+            const charData = res.data.results[0]
+            if (charData) return _transformCharacter(res.data.results[0])
+        } catch (e) {
+            console.log('Error on searchCharacter --> ', e)
+        }
+    }
 
     const getAllComics = async (offset = 0) => {
         try {
@@ -70,7 +79,7 @@ const useMarvelService = () => {
         }
     }
 
-    return {loading,error, getAllCharacters,getCharacter, getAllComics, getComic}
+    return {loading,error, getAllCharacters,getCharacter, getAllComics, getComic, searchCharacter}
 }
 
 export default useMarvelService

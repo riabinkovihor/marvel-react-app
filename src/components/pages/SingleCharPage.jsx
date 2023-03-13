@@ -1,10 +1,12 @@
-import SingleComic from "../singleComic/SingleComic";
+import SingleChar from "../singleChar";
 import AppBanner from "../appBanner/AppBanner";
 export default function SingleComicPage () {
     return (
         <div className="container">
             <AppBanner/>
-            <SingleComic/>
+            <SingleChar/>
         </div>
     )
 }
+
+

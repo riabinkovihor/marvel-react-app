@@ -8,6 +8,13 @@
         column-gap: 25px;
         align-items: start;
     }
+    &__column {
+        position: sticky;
+        top: 50px;
+        &:last-child {
+            z-index: 5;
+        }
+    }
     &__grid {
         display: grid;
         grid-template-columns: repeat(3, 200px);
