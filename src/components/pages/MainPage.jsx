@@ -5,6 +5,7 @@ import CharInfo from "../charInfo/CharInfo";
 import ErrorBoundary from "../errorBoundary/ErrorBoundary";
 import decoration from "../../resources/img/vision.png";
 import SearchForm from "../searchForm/SearchForm";
+import {Helmet, HelmetProvider} from "react-helmet-async";
 
 const MainPage = () => {
     const [selectedChar,setSelectedChar] = useState(null)
@@ -12,7 +13,14 @@ const MainPage = () => {
         setSelectedChar(id)
     }
     return (
-        <>
+        <HelmetProvider>
+            <Helmet>
+                <meta
+                    name="description"
+                    content="Portal with list of characters"
+                />
+                <title>Marvel information portal</title>
+            </Helmet>
             <ErrorBoundary>
                 <RandomChar/>
             </ErrorBoundary>
@@ -33,7 +41,7 @@ const MainPage = () => {
                 </div>
             </div>
             <img className="bg-decoration" src={decoration} alt="vision"/>
-        </>
+        </HelmetProvider>
     )
 }
 

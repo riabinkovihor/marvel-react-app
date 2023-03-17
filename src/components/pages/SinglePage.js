@@ -34,13 +34,13 @@ const SinglePage = ({Component, dataType}) => {
     const spinner = loading ? <Spinner/> :null
     const content = !(error || loading) && data ? <Component data={data}/> :null
     return (
-        <div className="container">
-            <AppBanner/>
-            {skeleton}
-            {content}
-            {errorMessage}
-            {spinner}
-        </div>
+            <div className="container">
+                <AppBanner/>
+                {skeleton}
+                {content}
+                {errorMessage}
+                {spinner}
+            </div>
     )
 }
 
